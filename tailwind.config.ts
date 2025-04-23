@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,12 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				foodie: {
+					orange: '#F97316',
+					cream: '#FFFBF5',
+					brown: '#4D3900',
+					light: '#FFF5E9',
 				}
 			},
 			borderRadius: {
