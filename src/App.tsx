@@ -41,8 +41,8 @@ const App = () => {
       setSession(session)
     })
     supabase.auth.getUser().then(({data : {user}}) => {
-      console.log(user.user_metadata?.role);
-      setRole(user.user_metadata?.role);
+      console.log("Role :",user?.user_metadata?.role);
+      setRole(user?.user_metadata?.role);
     });
     return () => subscription.unsubscribe()
   }, [])
@@ -57,6 +57,8 @@ const App = () => {
       <Route path="/" element={<Index />} />
       <Route path="*" element={<Noroute/>}/>
       </Routes>
+      <Toaster />
+      <Sonner />
       </BrowserRouter>
     )
   }

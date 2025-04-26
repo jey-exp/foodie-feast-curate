@@ -29,10 +29,10 @@ const Noroute = () => {
         navigate("/auth/login");
     }
     return showUi ? (
-      <div className='flex w-screen h-screen items-center justify-center bg-slate-600'>
-        <div>
+      <div className='flex w-screen h-screen items-center justify-center bg-orange-100'>
+        <div className='space-y-2'>
           <h1 className='text-5xl text-black'>Not authenticated</h1>
-          <h1 onClick={handleRoute} className='cursor-pointer'>
+          <h1 onClick={handleRoute} className='cursor-pointer font-bold bg-orange-500 text-center rounded-lg py-3 text-white'>
             Go to login
           </h1>
         </div>

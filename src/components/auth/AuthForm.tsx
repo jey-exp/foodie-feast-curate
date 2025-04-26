@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { UserRole } from "@/types";
@@ -33,7 +32,7 @@ const AuthForm = ({ mode }: AuthFormProps) => {
       }
       checkSession();
     } catch (error) {
-      console.log("Error in checking session : ", error);
+      console.error("Error in checking session : ", error);
     }
 
   },[])
@@ -52,29 +51,23 @@ const AuthForm = ({ mode }: AuthFormProps) => {
               emailRedirectTo: 'http://localhost:8080/customer/home',
             },
           })
-          
           if(error){
-            toast.error(error);
+            console.error("Error in registering : ", error);
+            toast.error(error.message);
             return;
           }
-          if (role === "caterer") {
-            navigate("/auth/login");
-          } else {
-            navigate("/auth/login");
-          }
+          navigate("/auth/login");
       }
       else{
           const { data, error } = await SupaBaseObj.auth.signInWithPassword({
             email: email,
             password: password,
           })
-          console.log("Data : ", data);
-          console.log("Error : ", error);
           if(error){
-            toast.error(error);
+            toast.error(error.message);
             return;
           }
-          if (role === "caterer") {
+          else if (role === "caterer") {
             navigate("/caterer/dashboard");
           } else {
             navigate("/customer/home");
