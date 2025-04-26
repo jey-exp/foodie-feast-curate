@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import MainLayout from "@/components/layout/MainLayout";
 import CatererCard from "@/components/customer/CatererCard";
 import { User, CatererProfile } from "@/types";
+import SupaBase from "@/lib/zustand";
 
 // Mock user data - will be replaced with Supabase integration
 const mockUser: User = {
@@ -60,6 +61,15 @@ const Home = () => {
   const [user] = useState<User>(mockUser);
   const [caterers, setCaterers] = useState<CatererProfile[]>(mockCaterers);
   const [searchTerm, setSearchTerm] = useState("");
+  const supa = SupaBase((state)=>state.supaObj);
+
+  useEffect(()=>{
+    const getCustomer = async()=>{
+      const { data: { user } } = await supa.auth.getUser();
+      console.log(user);
+    }
+    getCustomer();
+  },[])
   
   const filteredCaterers = searchTerm
     ? caterers.filter(caterer => 

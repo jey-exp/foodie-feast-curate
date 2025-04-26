@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { UserRole } from "@/types";
+import SupaBase from "@/lib/zustand";
 
 interface AuthFormProps {
   mode: "login" | "register";
@@ -19,25 +19,75 @@ const AuthForm = ({ mode }: AuthFormProps) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("customer");
+  const [submitting, isSubmitting] = useState<boolean>(false);
+  const SupaBaseObj = SupaBase((state)=> state.supaObj)
+
+  useEffect(()=>{
+    try {
+      const checkSession = async()=>{
+        const {data : {session}} = await SupaBaseObj.auth.getSession();
+        if(session){
+          toast.success("You are already logged In");
+          navigate("/customer/home");
+        }
+      }
+      checkSession();
+    } catch (error) {
+      console.log("Error in checking session : ", error);
+    }
+
+  },[])
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    isSubmitting(true);
     
     try {
-      // This is a placeholder for Supabase auth implementation
-      // We'll connect to Supabase once the integration is set up
-      console.log("Authenticating with:", { email, password, role });
+      if(mode === "register"){
+          const { data, error } = await SupaBaseObj.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+              role:role,
+              emailRedirectTo: 'http://localhost:8080/customer/home',
+            },
+          })
+          
+          if(error){
+            toast.error(error);
+            return;
+          }
+          if (role === "caterer") {
+            navigate("/auth/login");
+          } else {
+            navigate("/auth/login");
+          }
+      }
+      else{
+          const { data, error } = await SupaBaseObj.auth.signInWithPassword({
+            email: email,
+            password: password,
+          })
+          console.log("Data : ", data);
+          console.log("Error : ", error);
+          if(error){
+            toast.error(error);
+            return;
+          }
+          if (role === "caterer") {
+            navigate("/caterer/dashboard");
+          } else {
+            navigate("/customer/home");
+          }
+      }
       toast.success(`${mode === "login" ? "Login" : "Registration"} successful!`);
       
-      // Redirect to the appropriate dashboard
-      if (role === "caterer") {
-        navigate("/caterer/dashboard");
-      } else {
-        navigate("/customer/home");
-      }
     } catch (error) {
       console.error("Authentication error:", error);
       toast.error("Authentication failed. Please try again.");
+    }
+    finally{
+      isSubmitting(false);
     }
   };
 
@@ -97,7 +147,7 @@ const AuthForm = ({ mode }: AuthFormProps) => {
             </RadioGroup>
           </div>
           
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full" disabled={submitting}>
             {mode === "login" ? "Sign In" : "Create Account"}
           </Button>
         </form>

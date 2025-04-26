@@ -3,6 +3,7 @@ import { ReactNode } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@/types";
+import SupaBase from "@/lib/zustand";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -11,12 +12,13 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children, user }: MainLayoutProps) => {
   const navigate = useNavigate();
+  const Supa = SupaBase((state)=>state.supaObj);
   const location = useLocation();
 
-  const handleLogout = () => {
-    // This will be implemented with Supabase auth
+  const handleLogout = async() => {
+    const { error } = await Supa.auth.signOut()
     console.log("Logging out");
-    navigate("/");
+    navigate("/auth/login");
   };
 
   const getNavLinks = (role?: UserRole) => {
