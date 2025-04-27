@@ -3,6 +3,7 @@ import  { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner';
 import {BeatLoader} from "react-spinners"
+import { MultiStepLoaderDemo } from '@/components/ui/MultistepLoaderDemo';
 
 const Noroute = () => {
   const supa = SupaBase((state)=>state.supaObj);
@@ -17,7 +18,7 @@ const Noroute = () => {
             if(!user){
               setShowUi(true);
             }
-          }, 0);
+          }, 1000);
         }
         checkSession()
       } catch (error) {
@@ -28,6 +29,13 @@ const Noroute = () => {
     const handleRoute = ()=>{
         navigate("/auth/login");
     }
+    const loadingStates = [
+      { text: "Collecting credentials" },
+      { text: "Verifing your request" },
+      { text: "Authenticating session" },
+      { text: "Performing checksum" },
+    ];
+    
     return showUi ? (
       <div className='flex w-screen h-screen items-center justify-center bg-orange-100'>
         <div className='space-y-2'>
@@ -38,10 +46,8 @@ const Noroute = () => {
         </div>
       </div>
     ) : (
-      <div className='w-screen h-screen flex justify-center items-center bg-orange-100'>
-        <div>
-            <BeatLoader color='#2d2d2d' size={40} />
-        </div>
+      <div>
+        <MultiStepLoaderDemo loaders={loadingStates} isloading={!showUi}/>
       </div>
     )
   

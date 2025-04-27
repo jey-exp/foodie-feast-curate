@@ -8,6 +8,7 @@ import MainLayout from "@/components/layout/MainLayout";
 import CatererCard from "@/components/customer/CatererCard";
 import { User, CatererProfile } from "@/types";
 import SupaBase from "@/lib/zustand";
+import { MultiStepLoaderDemo } from "@/components/ui/MultistepLoaderDemo";
 
 // Mock user data - will be replaced with Supabase integration
 const mockUser: User = {

@@ -24,30 +24,30 @@ import Noroute from "./pages/auth/Noroute";
 import { UserRole } from "./types";
 
 const queryClient = new QueryClient();
-const supabase = createClient('https://hmspzbpwxjaxirwqpbce.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imhtc3B6YnB3eGpheGlyd3FwYmNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU1NDE5OTUsImV4cCI6MjA2MTExNzk5NX0.5D1bOluivPu4GZyS2J6CTtwnJObVAW-Ld6vtHsxmGqE')
+const supabase = createClient(import.meta.env.VITE_PUBLIC_SUPABASE_PROJECT, import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY)
 
 const App = () => {
   const [session, setSession] = useState(null);
   const SupaBaseObj = SupaBase((state)=> state.setSupaObj);
   const [role, setRole]= useState<UserRole>("customer");
   SupaBaseObj(supabase);
+
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    }) 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-    supabase.auth.getUser().then(({data : {user}}) => {
-      console.log("Role :",user?.user_metadata?.role);
-      setRole(user?.user_metadata?.role);
-    });
-    return () => subscription.unsubscribe()
+    const performingSessionValidations = async()=>{
+      const {data : {session}} = await supabase.auth.getSession();
+      setSession(session);
+      setRole(session?.user?.user_metadata?.role);
+      console.log("Role :",session?.user?.user_metadata?.role);
+      const {
+        data: { subscription },
+      } = supabase.auth.onAuthStateChange((_event, session) => {
+        setSession(session)
+      })
+      return () => subscription.unsubscribe()
+    }
+    performingSessionValidations();
   }, [])
 
-  
   if (!session) {
     return (
       <BrowserRouter>

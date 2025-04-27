@@ -1,14 +1,22 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import SupaBase from "@/lib/zustand";
 
 const NotFound = () => {
   const location = useLocation();
+  const Supa = SupaBase((state) => state.supaObj);
 
   useEffect(() => {
     console.error(
       "404 Error: User attempted to access non-existent route:",
       location.pathname
     );
+    // const handleSessionValidation = async()=>{
+    //   const {data : {session}} = await Supa.getSession();
+    //   console.log(session);
+    //   if()
+    // }
+    // handleSessionValidation();
   }, [location.pathname]);
 
   return (

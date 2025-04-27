@@ -71,9 +71,9 @@ const AuthForm = ({ mode }: AuthFormProps) => {
             return;
           }
           else if (role === "caterer") {
-            navigate("/caterer/dashboard");
+              navigate("/caterer/dashboard");
           } else {
-            navigate("/customer/home");
+              navigate("/customer/home");
           }
       }
       toast.success(`${mode === "login" ? "Login" : "Registration"} successful!`);

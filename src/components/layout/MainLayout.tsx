@@ -1,9 +1,10 @@
 
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User, UserRole } from "@/types";
 import SupaBase from "@/lib/zustand";
+import { MultiStepLoaderDemo } from "../ui/MultistepLoaderDemo";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -11,14 +12,22 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ children, user }: MainLayoutProps) => {
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
-  const Supa = SupaBase((state)=>state.supaObj);
   const location = useLocation();
+  const Supa = SupaBase((state)=>state.supaObj);
 
   const handleLogout = async() => {
-    const { error } = await Supa.auth.signOut()
-    console.log("Logging out");
-    navigate("/auth/login");
+    setLoading(true);
+    setTimeout(async() => {
+      const { error } = await Supa.auth.signOut();
+      if(error){
+        console.log("Error in logout : ", error);
+        return;
+      }
+      navigate("/auth/login");
+      setLoading(false);
+    }, 2000);
   };
 
   const getNavLinks = (role?: UserRole) => {
@@ -39,7 +48,11 @@ const MainLayout = ({ children, user }: MainLayoutProps) => {
     
     return [];
   };
-
+  const loadingStates = [
+    { text: "Collecting credentials" },
+    { text: "Logging out" },
+    { text: "Performing checksum" },
+  ];
   const navLinks = getNavLinks(user?.role);
 
   return (
@@ -130,6 +143,9 @@ const MainLayout = ({ children, user }: MainLayoutProps) => {
           </div>
         </div>
       </footer>
+      {loading && (
+        <MultiStepLoaderDemo loaders={loadingStates} isloading={loading} />
+      )}
     </div>
   );
 };
