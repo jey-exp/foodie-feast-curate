@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { UserRole } from "@/types";
 import SupaBase from "@/lib/zustand";
+import ConfirmationModal from "../ui/Modal";
 
 interface AuthFormProps {
   mode: "login" | "register";
@@ -19,6 +20,7 @@ const AuthForm = ({ mode }: AuthFormProps) => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<UserRole>("customer");
   const [submitting, isSubmitting] = useState<boolean>(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
   const SupaBaseObj = SupaBase((state)=> state.supaObj)
 
   useEffect(()=>{
@@ -26,8 +28,7 @@ const AuthForm = ({ mode }: AuthFormProps) => {
       const checkSession = async()=>{
         const {data : {session}} = await SupaBaseObj.auth.getSession();
         if(session){
-          toast.success("You are already logged In");
-          navigate("/customer/home");
+          setConfirmModalOpen(true);
         }
       }
       checkSession();
@@ -47,7 +48,9 @@ const AuthForm = ({ mode }: AuthFormProps) => {
             email: email,
             password: password,
             options: {
-              role:role,
+              data : {
+                role :role
+              },
               emailRedirectTo: 'http://localhost:8080/customer/home',
             },
           })
@@ -83,6 +86,33 @@ const AuthForm = ({ mode }: AuthFormProps) => {
       isSubmitting(false);
     }
   };
+
+  const handleOptionSelect = async(option:string)=>{
+    if(option === "no"){
+      SupaBaseObj.auth.signOut().then(()=>{
+        toast.info("Login to continue");
+        console.log("Logged out");
+      }).catch((err)=>{
+        toast.error(err.message);
+        console.log("Error in logging out : ", err);
+      })
+    }
+    else{
+      SupaBaseObj.auth.getUser().then(({data : {user}})=> {
+        const role = user?.user_metadata?.role;
+        if(role === "customer"){
+          navigate("/customer/home");
+        }
+        else{
+          navigate("/caterer/dashboard");
+        }
+      }
+      ).catch((err)=>{
+        console.log("Error in redirecting : ", err);
+        toast.error(err.message);
+      })
+    }
+  }
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -162,6 +192,9 @@ const AuthForm = ({ mode }: AuthFormProps) => {
           </p>
         )}
       </CardFooter>
+      {confirmModalOpen && (
+        <ConfirmationModal modalTitle="Already logged In" description="You are already  logged in, do you need to continue?" onSelect={handleOptionSelect}/>
+      )}
     </Card>
   );
 };

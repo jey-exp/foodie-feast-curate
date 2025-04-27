@@ -63,13 +63,6 @@ const Home = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const supa = SupaBase((state)=>state.supaObj);
 
-  useEffect(()=>{
-    const getCustomer = async()=>{
-      const { data: { user } } = await supa.auth.getUser();
-      console.log(user);
-    }
-    getCustomer();
-  },[])
   
   const filteredCaterers = searchTerm
     ? caterers.filter(caterer => 
