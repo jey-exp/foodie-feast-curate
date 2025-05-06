@@ -34,14 +34,11 @@ const App = () => {
 
   useEffect(() => {
     const performingSessionValidations = async()=>{
-      const {data : {session}} = await supabase.auth.getSession();
-      setSession(session);
-      setRole(session?.user?.user_metadata?.role);
-      console.log("Role :",session?.user?.user_metadata?.role);
       const {
         data: { subscription },
       } = supabase.auth.onAuthStateChange((_event, session) => {
         setSession(session)
+        setRole(session?.user?.user_metadata?.role);
       })
       return () => subscription.unsubscribe()
     }
