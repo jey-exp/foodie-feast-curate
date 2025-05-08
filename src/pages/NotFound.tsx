@@ -11,12 +11,6 @@ const NotFound = () => {
       "404 Error: User attempted to access non-existent route:",
       location.pathname
     );
-    // const handleSessionValidation = async()=>{
-    //   const {data : {session}} = await Supa.getSession();
-    //   console.log(session);
-    //   if()
-    // }
-    // handleSessionValidation();
   }, [location.pathname]);
 
   return (

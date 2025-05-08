@@ -18,7 +18,7 @@ const Noroute = () => {
             if(!user){
               setShowUi(true);
             }
-          }, 1000);
+          }, 2000);
         }
         checkSession()
       } catch (error) {
