@@ -21,7 +21,7 @@ const AuthForm = ({ mode }: AuthFormProps) => {
   const [role, setRole] = useState<UserRole>("customer");
   const [submitting, isSubmitting] = useState<boolean>(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
-  const [wrongRoleModal, setWrongRoleModal] = useState<boolean>(true);
+  const [wrongRoleModal, setWrongRoleModal] = useState<boolean>(false);
   const [roleOption1, setRoleOption1] = useState<string>();
   const [roleOption2, setRoleOption2] = useState<string>();
   const SupaBaseObj = SupaBase((state)=> state.supaObj)
@@ -80,7 +80,7 @@ const AuthForm = ({ mode }: AuthFormProps) => {
           }
           else if(data?.user?.user_metadata?.role != role){
             console.log("Wrong user");
-            setWrongRoleModal(false);
+            setWrongRoleModal(true);
             setConfirmModalOpen(false);
             setRoleOption1("Login again");
             setRoleOption2(`Continue as ${data.user.user_metadata.role}`);
