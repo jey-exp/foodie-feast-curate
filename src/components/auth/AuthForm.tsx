@@ -21,13 +21,16 @@ const AuthForm = ({ mode }: AuthFormProps) => {
   const [role, setRole] = useState<UserRole>("customer");
   const [submitting, isSubmitting] = useState<boolean>(false);
   const [confirmModalOpen, setConfirmModalOpen] = useState<boolean>(false);
+  const [wrongRoleModal, setWrongRoleModal] = useState<boolean>(true);
+  const [roleOption1, setRoleOption1] = useState<string>();
+  const [roleOption2, setRoleOption2] = useState<string>();
   const SupaBaseObj = SupaBase((state)=> state.supaObj)
 
   useEffect(()=>{
     try {
       const checkSession = async()=>{
         const {data : {session}} = await SupaBaseObj.auth.getSession();
-        if(session){
+        if(session && wrongRoleModal === false){
           setConfirmModalOpen(true);
         }
       }
@@ -37,6 +40,11 @@ const AuthForm = ({ mode }: AuthFormProps) => {
     }
 
   },[])
+  useEffect(() => {
+  console.log("wrongRoleModal updated:", wrongRoleModal);
+  console.log(roleOption1);
+  console.log(roleOption2);
+}, [wrongRoleModal]);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,9 +73,17 @@ const AuthForm = ({ mode }: AuthFormProps) => {
           const { data, error } = await SupaBaseObj.auth.signInWithPassword({
             email: email,
             password: password,
-          })
+          });
           if(error){
             toast.error(error.message);
+            return;
+          }
+          else if(data?.user?.user_metadata?.role != role){
+            console.log("Wrong user");
+            setWrongRoleModal(false);
+            setConfirmModalOpen(false);
+            setRoleOption1("Login again");
+            setRoleOption2(`Continue as ${data.user.user_metadata.role}`);
             return;
           }
           else if (role === "caterer") {
@@ -88,7 +104,7 @@ const AuthForm = ({ mode }: AuthFormProps) => {
   };
 
   const handleOptionSelect = async(option:string)=>{
-    if(option === "no"){
+    if(option === "option2"){
       SupaBaseObj.auth.signOut().then(()=>{
         toast.info("Login to continue");
         console.log("Logged out");
@@ -112,6 +128,24 @@ const AuthForm = ({ mode }: AuthFormProps) => {
         toast.error(err.message);
       })
     }
+  }
+
+  const handleRoleModalAction = async(option : string)=>{
+    if(option === "option1"){
+      const {error} = await SupaBaseObj.auth.signOut();
+      if(error){
+        console.log("Error in signout : ", error);
+      }
+    }
+    else{
+      if(role === "caterer"){
+        navigate("/customer/home");
+      }
+      else{
+        navigate("/caterer/dashboard");
+      }
+    }
+    setWrongRoleModal(false);
   }
 
   return (
@@ -193,8 +227,11 @@ const AuthForm = ({ mode }: AuthFormProps) => {
         )}
       </CardFooter>
       {confirmModalOpen && (
-        <ConfirmationModal modalTitle="Already logged In" description="You are already  logged in, do you need to continue?" onSelect={handleOptionSelect}/>
+        <ConfirmationModal modalTitle="Already logged In" description="You are already  logged in, do you need to continue?" onSelect={handleOptionSelect} option1="Redirect" options2="Logout"/>
       )}
+      {/* {wrongRoleModal && (
+        <ConfirmationModal modalTitle="Role Mismatch" description={`You are a ${role==="caterer" ? "customer" : "caterer"} but tring to login as ${role}`} option1={roleOption1} options2={roleOption2} onSelect={handleRoleModalAction} />
+      )} */}
     </Card>
   );
 };
